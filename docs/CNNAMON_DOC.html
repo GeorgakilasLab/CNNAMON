@@ -938,7 +938,7 @@ for cluster_name, filters in clusters.items():
 <span class="param-name">class_names</span> (List[str], optional): Custom class labels
                     </div>
 <div class="param">
-<span class="param-name">method</span> (str): 'mann-whitney' or 't-test'
+<span class="param-name">method</span> (str): 'mann-whitney'
                     </div>
 <div class="param">
 <span class="param-name">n_cores</span> (int): Parallel processing cores
@@ -952,7 +952,7 @@ for cluster_name, filters in clusters.items():
                     <ul>
 <li>Split activations into class-positive and class-negative groups</li>
 <li>Calculate log2 fold change (enrichment direction)</li>
-<li>Perform statistical test (Mann-Whitney U or Welch's t-test)</li>
+<li>Perform statistical test (Mann-Whitney U </li>
 </ul>
 </li>
 <li>Apply FDR correction (Benjamini-Hochberg) across all tests</li>
@@ -1015,24 +1015,6 @@ logFCs = enrichment.logFCs      # DataFrame: filters × classes</code></pre>
 <li>* marker: q-value ≤ significance threshold (statistically significant)</li>
 </ul>
 </div>
-<h2>Statistical Methods</h2>
-<table>
-<tr>
-<th>Method</th>
-<th>Test Type</th>
-<th>Best For</th>
-</tr>
-<tr>
-<td>mann-whitney</td>
-<td>Non-parametric</td>
-<td>Default choice; robust to outliers and non-normal distributions</td>
-</tr>
-<tr>
-<td>t-test</td>
-<td>Parametric (Welch's)</td>
-<td>When activation distributions are approximately normal</td>
-</tr>
-</table>
 </section>
 </main>
 <script>function showSection(sectionId) {
