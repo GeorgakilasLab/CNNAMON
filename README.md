@@ -2,7 +2,7 @@
 
 
 <p align="center">
-  <img src="docs/img/logo_cnnamon.svg" alt="CNNAMON Logo" height="180" />
+  <img src="https://github.com/GeorgakilasLab/CNNAMON/blob/main/docs/img/logo_cnnamon.svg" alt="CNNAMON Logo" height="180" />
 </p>
 
 
