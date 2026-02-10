@@ -165,13 +165,9 @@
             color: var(--text-light);
         }
 
-        code {
-            background: var(--code-bg);
-            padding: 0.2rem 0.4rem;
-            border-radius: 3px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            color: var(--text);
+        .code-container {
+            position: relative;
+            margin: 1.5rem 0;
         }
 
         pre {
@@ -179,13 +175,42 @@
             padding: 1.5rem;
             border-radius: 8px;
             overflow-x: auto;
-            margin: 1.5rem 0;
             border-left: 4px solid var(--primary);
+            margin: 0;
         }
 
-        pre code {
-            background: none;
-            padding: 0;
+        code {
+            background: var(--code-bg);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--text);
+        }
+        
+        p code, li code {
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-light);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0.7;
+        }
+
+        .copy-btn:hover {
+            opacity: 1;
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
         }
 
         .method {
@@ -308,7 +333,7 @@
 <div class="nav-title">Getting Started</div>
 <a class="nav-link active" data-section="overview" href="#" onclick="showSection('overview')">Overview</a>
 <a class="nav-link" data-section="installation" href="#" onclick="showSection('installation')">Installation</a>
-<a class="nav-link" data-section="quickstart" href="#" onclick="showSection('quickstart')">Quick Start</a>
+<a class="nav-link" data-section="quickstart" href="#" onclick="showSection('quickstart')">Basic Workflow</a>
 </div>
 <div class="nav-section">
 <div class="nav-title">Utility</div>
@@ -324,59 +349,287 @@
 </div>
 </nav>
 <main class="content">
+
 <section class="section active" id="overview">
 <h1>Cnnamon Documentation</h1>
-<p>A modular framework for DNA sequence-based Convolutional Neural Network (CNN) model training and explainability.</p>
-<h2>What is Cnnamon?</h2>
-<p>Cnnamon is a comprehensive Python framework designed for building, training, and interpreting 1D CNNs for DNA sequence analysis. It provides:</p>
+<p>A modular, end-to-end Python framework for DNA sequence-based Convolutional Neural Network (CNN) model training and explainability.</p>
+<h2>Overview</h2>
+<p>Cnnamon is designed to bridge the gap between deep learning model development and biological interpretation in genomics. While training high-performance models on DNA sequences is common, understanding <em>what</em> patterns the model learns is often the bottleneck. Cnnamon integrates data processing, model construction, and a suite of rich explainability tools into a unified ecosystem.</p>
+
+<h3>What to Anticipate</h3>
+<p>By using Cnnamon, researchers can expect to:</p>
 <ul>
-<li><strong>Data Preparation:</strong> Tools for loading genomic intervals and converting sequences to one-hot encoded arrays.</li>
-<li><strong>Model Building:</strong> JSON-based CNN architecture specification and training.</li>
-<li><strong>Explainability:</strong> Advanced visualization and interpretation tools for understanding learned patterns (Motifs, Importance, Clustering, Enrichment).</li>
+    <li><strong>Streamline Data Prep:</strong> Go from raw genomic intervals (BED files) and Reference Genomes (FASTA) to model-ready, one-hot encoded tensors with a single command.</li>
+    <li><strong>No-Code Model Building:</strong> Design complex 1D CNN architectures using simple JSON configuration files, ensuring reproducibility and easy sharing of model architectures.</li>
+    <li><strong>Biological Discovery:</strong> The framework is tailored to extract biological meaning from the "black box." You will be able to visualize Position Frequency Matrices (PFMs) of learned motifs, cluster them by similarity, and determine which transcription factors or patterns drive specific class predictions.</li>
+    <li><strong>Publication-Ready Outputs:</strong> Generate high-quality Sequence Logos, ROC curves, Confusion Matrices, and Heatmaps directly from the pipeline.</li>
 </ul>
+
+<h3>Modules</h3>
+<p>The library is organized into two primary namespaces:</p>
+<div class="method">
+    <h4>1. cn.utility</h4>
+    <p>Handles the "plumbing" of the deep learning pipeline. It includes <code>PrepareData</code> for sequence extraction and <code>KerasModelBuilder</code> for JSON-based training.</p>
+</div>
+<div class="method">
+    <h4>2. cn.CNN1D</h4>
+    <p>The "Explainability Suite." This module provides post-hoc analysis tools:
+    <ul>
+        <li><strong>FilterVisualize:</strong> Convert filters to motifs (Logos) and export for TOMTOM.</li>
+        <li><strong>FilterImportance:</strong> Perturbation analysis to rank filters.</li>
+        <li><strong>FilterClustering:</strong> Group redundant filters.</li>
+        <li><strong>FilterEnrichment:</strong> Statistical tests for class specificity.</li>
+    </ul>
+    </p>
+</div>
 </section>
 
 <section class="section" id="installation">
 <h1>Installation</h1>
+<p>We highly recommend installing Cnnamon within a fresh virtual environment to ensure dependency compatibility.</p>
+
+<h2>Recommended Setup (Conda)</h2>
+<p>Create a new environment with Python 3.10 and install the package from PyPI. TensorFlow 2.15 is recommended for optimal compatibility.</p>
+
+<div class="code-container">
+<pre><code># 1. Create a fresh environment
+conda create -n cnnamon_env python=3.10
+conda activate cnnamon_env
+
+# 2. Install Cnnamon and TensorFlow
+pip install cnnamon tensorflow==2.15</code></pre>
+</div>
+
+<div class="note">
+    <strong>Dependencies:</strong> When you run the pip install command above, all necessary dependencies (NumPy, Pandas, Matplotlib, Seaborn, PyCirclize, Logomaker, Scikit-learn) will be automatically fetched and installed.
+</div>
+
 <h2>Requirements</h2>
 <ul>
-<li>Python ≥ 3.7</li>
-<li>TensorFlow ≥ 2.13 (compatible with Keras 2/3)</li>
-<li>NumPy, Pandas</li>
-<li>Matplotlib, Seaborn, pycirclize, logomaker</li>
-<li>scikit-learn, scipy, statsmodels</li>
-<li>joblib, tqdm</li>
-<li>bedtools (required for sequence extraction)</li>
+<li>Python 3.10 (Recommended)</li>
+<li>bedtools (Required for sequence extraction, must be in system PATH)</li>
 </ul>
-<h2>Install via PyPI</h2>
-<pre><code>pip install cnnamon</code></pre>
 </section>
 
 <section class="section" id="quickstart">
-<h1>Quick Start</h1>
-<h2>Basic Workflow</h2>
+<h1>Basic Workflow</h1>
+<p>This guide walks you through a complete analysis pipeline: from raw data to biological insights.</p>
+
+<h3>Step 1: Dataset Preparation</h3>
+<p>First, we convert genomic coordinates (BED) and a reference genome (FASTA) into one-hot encoded training tensors. The <code>PrepareData</code> module handles splitting (Train/Val/Test) and augmentation.</p>
+<div class="code-container">
 <pre><code>import cnnamon as cn
 
-# 1. Prepare data
+# Initialize data preparer
 preparer = cn.utility.PrepareData(
-    intervalfile="peaks.bed",
-    genomefasta="genome.fa",
-    outdir="output/"
+    intervalfile="peaks.bed",      # Input BED file
+    genomefasta="hg38.fa",         # Reference Genome
+    outdir="processed_data/",      # Output folder
+    split_segmentation="random",   # Split strategy
+    augment_RC=True                # Augment with Reverse Complements
 )
+
+# Run extraction
 train, test, val = preparer.run()
 
-# 2. Build and train model
-model_builder = cn.utility.KerasModelBuilder.from_json("model_config.json")
-model_builder.train(train['x'], train['y'], val['x'], val['y'])
-model_builder.save("my_model.keras")
+print(f"Training shape: {train['x'].shape}")</code></pre>
+</div>
 
-# 3. Visualize learned motifs
-motifs = cn.CNN1D.FilterVisualize.top_activating(model_builder.model, test)
-motifs.to_motifs(savefig="motifs.png")
+<h3>Step 2: Model Configuration (JSON)</h3>
+<p>Define your model architecture and training parameters in a JSON file. This ensures your experiments are reproducible.</p>
+<p>Create a file named <code>model_config.json</code> with the following structure:</p>
+<div class="code-container">
+<pre><code>{
+  "model": {
+    "layers": [
+      {
+        "class_name": "Conv1D",
+        "config": {
+          "name": "motif_scanner",
+          "filters": 12,
+          "kernel_size": 20,
+          "padding": "same",
+          "use_bias": true,
+          "input_shape": [300, 4],
+          "activation": "leaky_relu"
+        }
+      },
+      { "class_name": "MaxPooling1D", "config": { "pool_size": 2 } },
+      { "class_name": "Dropout", "config": { "rate": 0.1 } },
+      { "class_name": "Flatten", "config": {} },
+      { "class_name": "Dense", "config": { "units": 32, "activation": "relu" } },
+      { "class_name": "Dense", "config": { "units": 1, "activation": "sigmoid" } }
+    ]
+  },
+  "compile": {
+    "optimizer": {
+      "class_name": "AdamW",
+      "config": { "learning_rate": 0.001 }
+    },
+    "loss": "binary_crossentropy",
+    "metrics": ["accuracy", "AUC"]
+  },
+  "training_params": {
+    "epochs": 50,
+    "batch_size": 64
+  },
+  "callbacks": {
+    "EarlyStopping": {
+      "monitor": "val_loss",
+      "patience": 10,
+      "restore_best_weights": true
+    },
+    "CSVLogger": {
+      "filename": "training_log.csv"
+    }
+  }
+}</code></pre>
+</div>
 
-# 4. Analyze filter importance
-importance = cn.CNN1D.FilterImportance(model_builder.model, test, n_cores=4)
-importance.boxplot(savefig="importance.png")</code></pre>
+<h3>Step 3: Model Development</h3>
+<p>Initialize the <code>KerasModelBuilder</code> with your JSON config and start training. The framework builds the Keras model dynamically.</p>
+<div class="code-container">
+<pre><code># Build model from JSON
+builder = cn.utility.KerasModelBuilder.from_json("model_config.json")
+
+# Train the model
+history = builder.train(
+    x_train=train['x'], y_train=train['y'],
+    x_val=val['x'], y_val=val['y']
+)
+
+# Plot training history (Loss/Accuracy)
+builder.plot_history(savefig="training_curves.png")</code></pre>
+</div>
+
+<h3>Step 4: Evaluation</h3>
+<p>Evaluate the model's performance on the hold-out test set using the built-in evaluation suite. This generates publication-ready ROC curves and Confusion Matrices.</p>
+<div class="code-container">
+<pre><code># Plot ROC Curve
+builder.eval.roc(
+    test['x'], test['y'],
+    title="Model Performance (ROC)",
+    savefig="roc_curve.png"
+)
+
+# Plot Confusion Matrix
+builder.eval.cm(
+    test['x'], test['y'],
+    class_names=["Background", "Peak"],
+    savefig="confusion_matrix.png"
+)</code></pre>
+</div>
+
+<h3>Step 5: Saving and Reloading</h3>
+<p><strong>Essential:</strong> Before running explainability modules, save your trained model. The explainability tools often require a clean Keras model object or the path to a saved file.</p>
+<div class="code-container">
+<pre><code>from tensorflow import keras
+
+# Save the trained model
+builder.save("final_model.keras")
+
+# --- LATER OR IN A NEW SCRIPT ---
+
+# Reload the model for analysis
+loaded_model = keras.models.load_model("final_model.keras")
+
+# Reload data splits if needed
+_, test, _ = cn.utility.PrepareData.load_splits_from_disk("processed_data/")</code></pre>
+</div>
+
+<h3>Step 6: Explainability Modules</h3>
+<p>This is where Cnnamon shines. Use the following modules to interpret what your model has learned.</p>
+
+<h4>A. Filter Visualization (Motif Discovery)</h4>
+<p>Extract sequence motifs using either the standard "Top Activating" method or the rigorous "Significant Activating" method. <strong>Crucially, you can export these motifs to check against known databases (like JASPAR) using TOMTOM.</strong></p>
+<div class="code-container">
+<pre><code># Method 1: Top Activating (Faster, Standard)
+# Extracts motifs from the top 5% of activating sequences
+motifs_standard = cn.CNN1D.FilterVisualize.top_activating(
+    loaded_model, 
+    test, 
+    percentile=95.0,
+    n_cores=4
+)
+motifs_standard.to_motifs(savefig="motifs_standard.png")
+
+# Method 2: Significant Activating (Rigorous, Slower)
+# Uses permutation testing to find statistically significant motifs
+motifs_sig = cn.CNN1D.FilterVisualize.significant_activating(
+    loaded_model, 
+    test, 
+    n_perturbations=200,    # Shuffles per filter
+    q_value_cutoff=0.05,    # FDR threshold
+    n_cores=8
+)
+motifs_sig.to_motifs(savefig="motifs_significant.png")
+
+# --- JASPAR / TOMTOM Validation ---
+# Export significant motifs to MEME format for database comparison
+motifs_sig.to_meme("significant_motifs.meme")
+print("Motifs exported! Run TOMTOM to check matches against JASPAR.")</code></pre>
+</div>
+
+<h4>B. Filter Importance</h4>
+<p>Determine which filters actually drive model predictions by perturbing them and measuring loss increase.</p>
+<div class="code-container">
+<pre><code># Rank filters by importance
+importance = cn.CNN1D.FilterImportance(
+    loaded_model, 
+    test, 
+    n_iterations=10, 
+    n_cores=4
+)
+
+# Visualize ranking (Boxplot)
+importance.boxplot(savefig="filter_importance.png")</code></pre>
+</div>
+
+<h4>C. Filter Clustering</h4>
+<p>Group redundant filters (e.g., multiple filters learning the same "GATA" motif) to simplify interpretation.</p>
+<div class="code-container">
+<pre><code># Cluster filters based on activation similarity
+clustering = cn.CNN1D.FilterClustering(
+    loaded_model,
+    test,
+    linkage_method='ward'
+)
+
+# Plot circular dendrogram
+clustering.plot_circlize(savefig="filter_tree.png")
+
+# Get cluster assignments
+clusters = clustering.get_clusters(n_clusters=5)</code></pre>
+</div>
+
+<h4>D. Filter Enrichment</h4>
+<p>Identify which filters are specifically associated with positive or negative classes.</p>
+<div class="code-container">
+<pre><code># Run enrichment analysis
+enrichment = cn.CNN1D.FilterEnrichment(
+    loaded_model,
+    test,
+    method='fold_change',  # Uses Mann-Whitney U test
+    n_cores=4
+)
+
+# Plot enrichment heatmap with significance markers (*)
+enrichment.plot_heatmap(q_cutoff=0.05, savefig="enrichment.png")</code></pre>
+</div>
+
+<h4>E. Nucleotide Sensitivity (Mutagenesis)</h4>
+<p>Perform in-silico mutagenesis to see exactly which bases in a motif are critical for activation.</p>
+<div class="code-container">
+<pre><code># Analyze sensitivity of significant motifs
+sensitivity_df = cn.CNN1D.analyze_nucleotide_sensitivity(
+    loaded_model, 
+    motifs_sig,   # Use the MotifSet from Step 6A
+    n_cores=4
+)
+
+# Plot boxplots of mutational impact
+cn.CNN1D.plot_nucleotide_sensitivity(sensitivity_df, savefig="mutagenesis.png")</code></pre>
+</div>
 </section>
 
 <section class="section" id="preparedata">
@@ -486,7 +739,6 @@ importance.boxplot(savefig="importance.png")</code></pre>
 <h2>Discovery Methods</h2>
 <div class="method">
 <div class="method-signature">cn.CNN1D.FilterVisualize.top_activating(model, data, percentile=90.0, include_all_positive=False, n_cores=1) → MotifSet</div>
-<span class="badge">RECOMMENDED</span>
 <p>Extract motifs from sequences causing high activation.</p>
 <div class="param-list">
     <div class="param"><span class="param-name">percentile</span> (float): Cutoff for top activations (default 90.0).</div>
@@ -496,7 +748,7 @@ importance.boxplot(savefig="importance.png")</code></pre>
 
 <div class="method">
 <div class="method-signature">cn.CNN1D.FilterVisualize.significant_activating(model, data, n_perturbations=1000, q_value_cutoff=1.0, n_cores=1) → MotifSet</div>
-<span class="badge">RIGOROUS</span>
+<span class="badge">RECOMMENDED</span>
 <p>Extract motifs using permutation testing to filter significant activations.</p>
 <div class="param-list">
     <div class="param"><span class="param-name">n_perturbations</span> (int): Number of shuffles per filter.</div>
@@ -511,6 +763,23 @@ importance.boxplot(savefig="importance.png")</code></pre>
 <div class="method">
 <div class="method-signature">cn.CNN1D.FilterVisualize.softmax(model, background=None) → MotifSet</div>
 <p>Construct motifs by applying softmax to filter weights.</p>
+</div>
+
+<h2>External Validation (TOMTOM/JASPAR)</h2>
+<p>Cnnamon integrates with the MEME Suite to validate discovered motifs against known biological databases (like JASPAR or HOCOMOCO).</p>
+<div class="method">
+<div class="method-signature">to_meme(outfile)</div>
+<p>Export all discovered motifs to a standard `.meme` file. This file can be used as input for <code>tomtom</code>.</p>
+</div>
+<div class="code-container">
+<pre><code># 1. Export motifs from Cnnamon
+motifs_sig.to_meme("output/learned_motifs.meme")
+
+# 2. Run TOMTOM (Terminal Command)
+# Compare learned motifs against the JASPAR Core database
+tomtom -no-ssc -oc output/tomtom_results \
+       output/learned_motifs.meme \
+       JASPAR2022_CORE_vertebrates_non-redundant_pfms_meme.txt</code></pre>
 </div>
 
 <h2>Redundancy Analysis</h2>
@@ -538,10 +807,6 @@ importance.boxplot(savefig="importance.png")</code></pre>
 <div class="method">
 <div class="method-signature">to_motifs(savefig=None, figsize=None, **kwargs)</div>
 <p>Plot Sequence Logos (Information Content) for all filters in a grid.</p>
-</div>
-<div class="method">
-<div class="method-signature">to_meme(outfile)</div>
-<p>Export all motifs to MEME format for external tools (TOMTOM, FIMO).</p>
 </div>
 <div class="method">
 <div class="method-signature">to_svgs(outdir)</div>
@@ -658,7 +923,9 @@ importance.boxplot(savefig="importance.png")</code></pre>
 </div>
 </section>
 </main>
-<script>function showSection(sectionId) {
+
+<script>
+function showSection(sectionId) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(sectionId).classList.add('active');
     document.querySelectorAll('.nav-link').forEach(l => {
@@ -668,9 +935,30 @@ importance.boxplot(savefig="importance.png")</code></pre>
     window.location.hash = sectionId;
     window.scrollTo(0,0);
 }
-window.addEventListener('DOMContentLoaded', () => {
+
+// Automatically add copy buttons to all code blocks
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Navigation Logic
     const hash = window.location.hash.replace('#','') || 'overview';
     showSection(hash);
-});</script>
+
+    // 2. Copy Button Logic
+    document.querySelectorAll('.code-container').forEach(container => {
+        const button = document.createElement('button');
+        button.className = 'copy-btn';
+        button.innerText = 'Copy';
+        
+        button.addEventListener('click', () => {
+            const code = container.querySelector('code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                button.innerText = 'Copied!';
+                setTimeout(() => { button.innerText = 'Copy'; }, 2000);
+            });
+        });
+        
+        container.appendChild(button);
+    });
+});
+</script>
 </body>
 </html>
