@@ -221,18 +221,15 @@
             display: inline-block;
             padding: 0.25rem 0.75rem;
             background: var(--primary);
-            color: white; /* Keep white text for contrast on badge */
+            color: white;
             border-radius: 12px;
             font-size: 0.75rem;
             font-weight: 600;
             margin-right: 0.5rem;
         }
-
-        /* Dark mode specific tweak for badge text color if primary is too light */
+        
         @media (prefers-color-scheme: dark) {
-            .badge {
-                color: #0f172a; 
-            }
+            .badge { color: #0f172a; }
         }
 
         .note {
@@ -293,7 +290,6 @@
             .sidebar {
                 transform: translateX(-100%);
             }
-
             .content {
                 margin-left: 0;
             }
@@ -303,7 +299,7 @@
 <body>
 <div class="header">
 <div class="logo">
-<img alt="Cnnamon Logo" class="logo-icon" src="img/logo_cnnamon.svg"/>
+<img alt="Cnnamon Logo" class="logo-icon" src="https://raw.githubusercontent.com/GeorgakilasLab/CNNAMON/main/docs/img/logo_cnnamon.svg"/>
             CNNAMON
         </div>
 </div>
@@ -315,15 +311,12 @@
 <a class="nav-link" data-section="quickstart" href="#" onclick="showSection('quickstart')">Quick Start</a>
 </div>
 <div class="nav-section">
-<div class="nav-title">Data Preparation</div>
+<div class="nav-title">Utility</div>
 <a class="nav-link" data-section="preparedata" href="#" onclick="showSection('preparedata')">PrepareData</a>
-</div>
-<div class="nav-section">
-<div class="nav-title">Model Building</div>
 <a class="nav-link" data-section="modelbuilder" href="#" onclick="showSection('modelbuilder')">KerasModelBuilder</a>
 </div>
 <div class="nav-section">
-<div class="nav-title">Explainability</div>
+<div class="nav-title">CNN1D (Explainability)</div>
 <a class="nav-link" data-section="visualize" href="#" onclick="showSection('visualize')">Filter Visualization</a>
 <a class="nav-link" data-section="importance" href="#" onclick="showSection('importance')">Filter Importance</a>
 <a class="nav-link" data-section="clustering" href="#" onclick="showSection('clustering')">Filter Clustering</a>
@@ -337,58 +330,35 @@
 <h2>What is Cnnamon?</h2>
 <p>Cnnamon is a comprehensive Python framework designed for building, training, and interpreting 1D CNNs for DNA sequence analysis. It provides:</p>
 <ul>
-<li><strong>Data Preparation:</strong> Tools for loading genomic intervals and converting sequences to one-hot encoded arrays</li>
-<li><strong>Model Building:</strong> JSON-based CNN architecture specification and training</li>
-<li><strong>Explainability:</strong> Advanced visualization and interpretation tools for understanding learned patterns</li>
+<li><strong>Data Preparation:</strong> Tools for loading genomic intervals and converting sequences to one-hot encoded arrays.</li>
+<li><strong>Model Building:</strong> JSON-based CNN architecture specification and training.</li>
+<li><strong>Explainability:</strong> Advanced visualization and interpretation tools for understanding learned patterns (Motifs, Importance, Clustering, Enrichment).</li>
 </ul>
-<h2>Key Features</h2>
-<div class="method">
-<h4>🔬 Filter Visualization</h4>
-<p>Extract and visualize sequence motifs learned by convolutional filters using multiple methods (softmax, top-activating, positive-activating, significant-activating).</p>
-</div>
-<div class="method">
-<h4>📊 Filter Importance</h4>
-<p>Identify the most important filters in your model through perturbation analysis.</p>
-</div>
-<div class="method">
-<h4>🔗 Filter Clustering</h4>
-<p>Group functionally similar filters based on activation profiles.</p>
-</div>
-<div class="method">
-<h4>🎯 Class Enrichment</h4>
-<p>Discover which filters are enriched for specific output classes.</p>
-</div>
 </section>
+
 <section class="section" id="installation">
 <h1>Installation</h1>
 <h2>Requirements</h2>
 <ul>
 <li>Python ≥ 3.7</li>
-<li>TensorFlow ≥ 2.0</li>
-<li>NumPy</li>
-<li>Pandas</li>
-<li>Matplotlib, Seaborn</li>
-<li>scikit-learn</li>
-<li>logomaker</li>
-<li>pycirclize</li>
-<li>bedtools (for sequence extraction)</li>
+<li>TensorFlow ≥ 2.13 (compatible with Keras 2/3)</li>
+<li>NumPy, Pandas</li>
+<li>Matplotlib, Seaborn, pycirclize, logomaker</li>
+<li>scikit-learn, scipy, statsmodels</li>
+<li>joblib, tqdm</li>
+<li>bedtools (required for sequence extraction)</li>
 </ul>
-<h2>Install from Source</h2>
-<pre><code>git clone https://github.com/yourusername/cnnamon.git
-cd cnnamon
-pip install -e .</code></pre>
-<h2>Dependencies</h2>
-<pre><code>pip install tensorflow numpy pandas matplotlib seaborn scikit-learn logomaker pycirclize scipy statsmodels joblib tqdm</code></pre>
+<h2>Install via PyPI</h2>
+<pre><code>pip install cnnamon</code></pre>
 </section>
+
 <section class="section" id="quickstart">
 <h1>Quick Start</h1>
 <h2>Basic Workflow</h2>
-<pre><code>import cnnamon
-from cnnamon.util import PrepareData, KerasModelBuilder
-from cnnamon.CNN1D import FilterVisualize, FilterImportance
+<pre><code>import cnnamon as cn
 
 # 1. Prepare data
-preparer = PrepareData(
+preparer = cn.utility.PrepareData(
     intervalfile="peaks.bed",
     genomefasta="genome.fa",
     outdir="output/"
@@ -396,624 +366,295 @@ preparer = PrepareData(
 train, test, val = preparer.run()
 
 # 2. Build and train model
-model = KerasModelBuilder.from_json("model_config.json")
-model.train(train['x'], train['y'], val['x'], val['y'])
-model.save("my_model.keras")
+model_builder = cn.utility.KerasModelBuilder.from_json("model_config.json")
+model_builder.train(train['x'], train['y'], val['x'], val['y'])
+model_builder.save("my_model.keras")
 
 # 3. Visualize learned motifs
-motifs = FilterVisualize.top_activating(model.model, test['x'])
+motifs = cn.CNN1D.FilterVisualize.top_activating(model_builder.model, test)
 motifs.to_motifs(savefig="motifs.png")
 
 # 4. Analyze filter importance
-importance = FilterImportance(model.model, test, n_cores=4)
+importance = cn.CNN1D.FilterImportance(model_builder.model, test, n_cores=4)
 importance.boxplot(savefig="importance.png")</code></pre>
 </section>
+
 <section class="section" id="preparedata">
 <h1>PrepareData</h1>
-<p>The PrepareData class handles genomic sequence data preparation for CNN training, including sequence extraction, one-hot encoding, and flexible dataset splitting.</p>
+<p>The <code>PrepareData</code> class handles genomic sequence data preparation for CNN training, including sequence extraction, one-hot encoding, and flexible dataset splitting.</p>
 <h2>Initialization</h2>
 <div class="method">
-<div class="method-signature">PrepareData(intervalfile, genomefasta, outdir, **kwargs)</div>
-<p>Initialize data preparer with genomic intervals and reference genome.</p>
+<div class="method-signature">cn.utility.PrepareData(intervalfile, genomefasta, outdir, **kwargs)</div>
 <h4>Core Parameters:</h4>
 <div class="param-list">
-<div class="param">
-<span class="param-name">intervalfile</span> (str): Path to BED file containing genomic intervals
-                    </div>
-<div class="param">
-<span class="param-name">genomefasta</span> (str): Path to reference genome FASTA file
-                    </div>
-<div class="param">
-<span class="param-name">outdir</span> (str): Output directory for processed data
-                    </div>
+<div class="param"><span class="param-name">intervalfile</span> (str): Path to BED file. First 3 columns are coordinates; 4th is label (0/1 or pipe-separated for multilabel).</div>
+<div class="param"><span class="param-name">genomefasta</span> (str): Path to reference genome FASTA.</div>
+<div class="param"><span class="param-name">outdir</span> (str): Output directory for processed data.</div>
 </div>
 <h4>Configuration Options (**kwargs):</h4>
 <div class="param-list">
-<div class="param">
-<span class="param-name">split_segmentation</span> (str): Splitting strategy. Options: <code>'random'</code>, <code>'chromosome'</code>, <code>'custom'</code>. (Default: 'random')
-                    </div>
-<div class="param">
-<span class="param-name">ratios</span> (list): Train/Test/Validation split ratios [train, test, val]. Used for 'random' and 'chromosome' modes. (Default: [0.6, 0.2, 0.2])
-                    </div>
-<div class="param">
-<span class="param-name">augment_RC</span> (bool): If True, augments the dataset with Reverse Complement sequences. (Default: False)
-                    </div>
-<div class="param">
-<span class="param-name">seed</span> (int): Random seed for reproducibility. (Optional)
-                    </div>
-<div class="param">
-<span class="param-name">save_splits</span> (str): Set to "1" to save <code>.npy</code> files to disk. (Default: "0")
-                    </div>
+<div class="param"><span class="param-name">split_segmentation</span> (str): Strategy for splitting data. Options: <code>'random'</code>, <code>'chromosome'</code>, <code>'custom'</code>. (Default: 'random')</div>
+<div class="param"><span class="param-name">ratios</span> (list): Train/Val/Test split ratios (e.g., <code>[0.6, 0.2, 0.2]</code>). Normalized automatically if sum != 1.</div>
+<div class="param"><span class="param-name">augment_RC</span> (bool): If <code>True</code>, adds Reverse Complement sequences to the dataset with same labels. (Default: False)</div>
+<div class="param"><span class="param-name">seed</span> (int): Random seed for reproducibility.</div>
+<div class="param"><span class="param-name">save_splits</span> (str): Set to <code>"1"</code> to save generated numpy arrays and info CSVs to disk. (Default: "0")</div>
+<div class="param"><span class="param-name">specificchr</span> (str): Set to "1" to limit processing to chromosomes in <code>chrlist</code>.</div>
+<div class="param"><span class="param-name">chrlist</span> (list/str): List of chromosomes to process if <code>specificchr="1"</code>.</div>
+<div class="param"><span class="param-name">train_chr_list</span> (list): List of chromosomes for training set (if <code>split_segmentation='custom'</code>).</div>
+<div class="param"><span class="param-name">val_chr_list</span> (list): List of chromosomes for validation set (if <code>split_segmentation='custom'</code>).</div>
+<div class="param"><span class="param-name">test_chr_list</span> (list): List of chromosomes for test set (if <code>split_segmentation='custom'</code>).</div>
 </div>
-<h4>Custom Split Parameters (if split_segmentation='custom'):</h4>
+</div>
+
+<h2>Accessible Attributes</h2>
+<p>After initialization/running, the following attributes are available:</p>
 <div class="param-list">
-<div class="param">
-<span class="param-name">train_chr_list</span> (list): List of chromosomes for training (e.g., <code>['chr1', 'chr2']</code>)
-                    </div>
-<div class="param">
-<span class="param-name">val_chr_list</span> (list): List of chromosomes for validation
-                    </div>
-<div class="param">
-<span class="param-name">test_chr_list</span> (list): List of chromosomes for testing
-                    </div>
+<div class="param"><span class="param-name">.intervals</span> (dict): Map of {chrom: [[start, end], ...]}.</div>
+<div class="param"><span class="param-name">.sequence_onehot</span> (dict): Map of {chrom: numpy_array}.</div>
+<div class="param"><span class="param-name">.labels</span> (dict): Map of {chrom: label_array}.</div>
+<div class="param"><span class="param-name">.info_map</span> (dict): Map of {chrom: [info_strings]}.</div>
+<div class="param"><span class="param-name">.label_dim</span> (int): Detected dimension of labels (1 for binary, >1 for multilabel).</div>
 </div>
-</div>
+
 <h2>Methods</h2>
 <div class="method">
 <div class="method-signature">run() → Tuple[Dict, Dict, Dict]</div>
-<p>Execute full data preparation pipeline.</p>
-<h4>Returns:</h4>
-<p>(train_dict, test_dict, validation_dict) where each contains:</p>
+<p>Execute pipeline. Returns three dictionaries (Train, Test, Validation). Each contains:</p>
 <ul>
-<li><code>'x'</code>: One-hot encoded sequences (N × L × 4)</li>
-<li><code>'y'</code>: Label array</li>
-<li><code>'info'</code>: Interval information (chr, start, end)</li>
+    <li><code>"x"</code>: Sequence tensor (N, L, 4)</li>
+    <li><code>"y"</code>: Label tensor (N, Classes)</li>
+    <li><code>"info"</code>: List of strings "chr,start,end" corresponding to each sample.</li>
 </ul>
+</div>
+<div class="method">
+<div class="method-signature">get_splits() → Tuple[Dict, Dict, Dict]</div>
+<p>Retrieve split data dictionaries without re-running sequence extraction (must be run after initialization or loading).</p>
 </div>
 <div class="method">
 <div class="method-signature">load_splits_from_disk(directory_path) → Tuple[Dict, Dict, Dict]</div>
 <span class="badge">STATIC</span>
-<p>Load previously saved data splits (if <code>save_splits="1"</code> was used).</p>
-<h4>Parameters:</h4>
-<div class="param">
-<span class="param-name">directory_path</span> (str): Path to saved split directory
-                </div>
+<p>Load splits previously saved with <code>save_splits="1"</code>. Returns the same structure as <code>run()</code>.</p>
 </div>
-<h2>Splitting Strategies</h2>
-<p>Cnnamon supports three robust strategies for dividing your genomic data:</p>
-<div class="method">
-<h4>🔀 Random Split ('random')</h4>
-<p>Pools all intervals from the genome and splits them randomly based on <code>ratios</code>. Best for non-overlapping, independent peaks.</p>
-</div>
-<div class="method">
-<h4>🧬 Chromosome Split ('chromosome')</h4>
-<p>Randomly selects entire chromosomes to hold out for testing/validation based on <code>ratios</code>. Prevents data leakage between similar sequences on the same chromosome.</p>
-</div>
-<div class="method">
-<h4>🛠 Custom Split ('custom')</h4>
-<p>Manually assign specific chromosomes to each set using <code>*_chr_list</code> parameters. Ideal for benchmarking against standard splits (e.g., "chr8 for test").</p>
-</div>
-<h2>Examples</h2>
-<h3>1. Random Split with Augmentation</h3>
-<pre><code>preparer = PrepareData(
-    intervalfile="peaks.bed", genomefasta="hg38.fa", outdir="out_rnd/",
-    split_segmentation="random",
-    ratios=[0.8, 0.1, 0.1],
-    augment_RC=True,    # Double data with Reverse Complements
-    seed=42
-)
-train, test, val = preparer.run()</code></pre>
-<h3>2. Chromosome Holdout</h3>
-<pre><code>preparer = PrepareData(
-    intervalfile="peaks.bed", genomefasta="hg38.fa", outdir="out_chr/",
-    split_segmentation="chromosome",
-    ratios=[0.7, 0.15, 0.15],
-    seed=123
-)</code></pre>
-<h3>3. Custom Chromosome Sets</h3>
-<pre><code>preparer = PrepareData(
-    intervalfile="peaks.bed", genomefasta="hg38.fa", outdir="out_custom/",
-    split_segmentation="custom",
-    train_chr_list=["chr1", "chr2", "chr3"],
-    val_chr_list=["chr4"],
-    test_chr_list=["chr5"]
-)</code></pre>
 </section>
 
 <section class="section" id="modelbuilder">
-    <h1>KerasModelBuilder</h1>
-    <p>A flexible wrapper for building, training, and evaluating Keras models directly from JSON configurations. It supports the full Keras Functional/Sequential API capabilities by dynamically loading layers, optimizers, and callbacks.</p>
+<h1>KerasModelBuilder</h1>
+<p>A wrapper for building, training, and evaluating Keras models from JSON.</p>
+<h2>Methods</h2>
+<div class="method">
+<div class="method-signature">cn.utility.KerasModelBuilder.from_json(json_path_or_dict)</div>
+<span class="badge">CLASS METHOD</span>
+<p>Initialize builder from a JSON file path or a dictionary.</p>
+</div>
+<div class="method">
+<div class="method-signature">build() → keras.Model</div>
+<p>Compiles and returns the Keras model based on the configuration.</p>
+</div>
+<div class="method">
+<div class="method-signature">train(x_train, y_train, x_val=None, y_val=None) → History</div>
+<p>Train the model using config parameters. Returns the Keras History object.</p>
+</div>
+<div class="method">
+<div class="method-signature">plot_history(title="Training History", savefig=None)</div>
+<p>Plot training metrics (loss/accuracy) vs epochs.</p>
+</div>
+<div class="method">
+<div class="method-signature">summary()</div>
+<p>Print Keras model summary.</p>
+</div>
 
-    <h2>1. Configuration Structure (JSON)</h2>
-    <p>The configuration file is divided into four main sections: <code>model</code>, <code>compile</code>, <code>training_params</code>, and <code>callbacks</code>.</p>
-
-    <h3>A. Model Architecture</h3>
-    <p>Define layers using the standard Keras <code>class_name</code> and <code>config</code> dictionary. You can use any layer available in <code>tf.keras.layers</code>.</p>
-    <pre><code>"model": {
-    "layers": [
-        {
-            "class_name": "Conv1D",
-            "config": {
-                "filters": 64,
-                "kernel_size": 8,
-                "activation": "relu",
-                "input_shape": [400, 4]
-            }
-        },
-        { "class_name": "MaxPooling1D", "config": { "pool_size": 2 } },
-        { "class_name": "Flatten", "config": {} },
-        { "class_name": "Dense", "config": { "units": 1, "activation": "sigmoid" } }
-    ]
-}</code></pre>
-
-    <h3>B. Compilation</h3>
-    <p>Specifies the optimizer, loss function, and metrics. Optimizers can be simple strings or detailed objects.</p>
-    <pre><code>"compile": {
-    "optimizer": {
-        "class_name": "Adam",
-        "config": { "learning_rate": 0.0001 }
-    },
-    "loss": "binary_crossentropy",
-    "metrics": ["accuracy"]
-}</code></pre>
-
-    <h3>C. Training Parameters</h3>
-    <p>Arguments passed directly to the <code>model.fit()</code> method.</p>
-    <pre><code>"training_params": {
-    "epochs": 50,
-    "batch_size": 32,
-    "verbose": 1
-}</code></pre>
-
-    <h3>D. Callbacks</h3>
-    <p>Define Keras callbacks. Keys match the callback class names in <code>tf.keras.callbacks</code>.</p>
-    <pre><code>"callbacks": {
-    "EarlyStopping": {
-        "monitor": "val_loss",
-        "patience": 5,
-        "restore_best_weights": true
-    },
-    "CSVLogger": {
-        "filename": "logs/training_log.csv"
-    }
-}</code></pre>
-
-    <h2>2. Core Methods</h2>
-    
-    <div class="method">
-        <div class="method-signature">KerasModelBuilder.from_json(json_path_or_dict)</div>
-        <span class="badge">CLASS METHOD</span>
-        <p>Initialize and build the model directly from a JSON file path or a dictionary.</p>
-    </div>
-
-    <div class="method">
-        <div class="method-signature">train(x_train, y_train, x_val=None, y_val=None)</div>
-        <p>Train the model using the parameters and callbacks defined in the JSON configuration.</p>
-    </div>
-
-    <div class="method">
-        <div class="method-signature">evaluate(x_test, y_test)</div>
-        <p>Run standard Keras evaluation (returns loss and metrics).</p>
-    </div>
-
-    <div class="method">
-        <div class="method-signature">plot_history(title="Training History", savefig=None)</div>
-        <p>Plot training vs. validation metrics (loss, accuracy, etc.) over epochs.</p>
-        <h4>Parameters:</h4>
-        <div class="param-list">
-            <div class="param"><span class="param-name">title</span> (str): Main title for the plot.</div>
-            <div class="param"><span class="param-name">savefig</span> (str): Path to save the plot.</div>
-        </div>
-    </div>
-
-    <div class="method">
-        <div class="method-signature">save(path) / load(path)</div>
-        <p>Save the trained model to a <code>.keras</code> file or load a pre-trained one.</p>
-    </div>
-
-    <h2>3. Advanced Evaluation (<code>model.eval</code>)</h2>
-    <p>The builder includes a helper <code>eval</code> object for generating publication-ready plots and metrics.</p>
-
-    <div class="method">
-        <div class="method-signature">model.eval.cm(x_test, y_test, class_names=None, title="Confusion Matrix", ...)</div>
-        <p>Plot a confusion matrix with row-normalized proportions (recall) and raw counts.</p>
-        <h4>Parameters:</h4>
-        <div class="param-list">
-            <div class="param"><span class="param-name">class_names</span> (list): List of label names for the axes (e.g. <code>["Negative", "Positive"]</code>).</div>
-            <div class="param"><span class="param-name">title</span> (str): Custom title for the plot.</div>
-            <div class="param"><span class="param-name">xlabel</span> (str): Label for the x-axis.</div>
-            <div class="param"><span class="param-name">ylabel</span> (str): Label for the y-axis.</div>
-            <div class="param"><span class="param-name">savefig</span> (str): Path to save the plot image.</div>
-        </div>
-    </div>
-
-    <div class="method">
-        <div class="method-signature">model.eval.roc(x_test, y_test, class_names=None, title="ROC Curve", ...)</div>
-        <p>Plot the Receiver Operating Characteristic (ROC) curve with AUC score (Binary only).</p>
-        <h4>Parameters:</h4>
-        <div class="param-list">
-             <div class="param"><span class="param-name">class_names</span> (list): List of label names.</div>
-             <div class="param"><span class="param-name">title</span> (str): Custom title for the plot.</div>
-             <div class="param"><span class="param-name">savefig</span> (str): Path to save the plot.</div>
-        </div>
-    </div>
-
-    <div class="method">
-        <div class="method-signature">model.eval.auc(x_test, y_test)</div>
-        <p>Calculate and print the AUC score (supports One-vs-Rest for multiclass).</p>
-    </div>
-
-    <h2>4. Full Example</h2>
-    <pre><code>from cnnamon.util import KerasModelBuilder
-
-# 1. Initialize and Build
-builder = KerasModelBuilder.from_json("config.json")
-
-# 2. Train
-builder.train(train_x, train_y, val_x, val_y)
-
-# 3. Plot History
-builder.plot_history(savefig="plots/history.png")
-
-# 4. Advanced Evaluation
-# Confusion Matrix with custom labels
-builder.eval.cm(
-    test_x, test_y, 
-    class_names=["Non-Promoter", "Promoter"],
-    title="Promoter Prediction Performance",
-    savefig="plots/cm.png"
-)
-
-# ROC Curve
-builder.eval.roc(
-    test_x, test_y,
-    title="Model ROC",
-    savefig="plots/roc.png"
-)</code></pre>
+<h2>Evaluation (model.eval)</h2>
+<p>Access via <code>builder.eval</code>. Provides publication-ready plotting.</p>
+<div class="method">
+<div class="method-signature">cm(x_test, y_test, class_names=None, title="Confusion Matrix", xlabel="Predicted", ylabel="Actual", savefig=None)</div>
+<p>Plot row-normalized confusion matrix. Annotations include probability and raw count.</p>
+</div>
+<div class="method">
+<div class="method-signature">roc(x_test, y_test, class_names=None, title="ROC Curve", xlabel="False Positive Rate", ylabel="True Positive Rate", savefig=None)</div>
+<p>Plot ROC curve (Binary classification only). Displays AUC in legend.</p>
+</div>
+<div class="method">
+<div class="method-signature">auc(x_test, y_test) → float</div>
+<p>Calculate and return AUC score. Supports 'ovr' (One-vs-Rest) for multiclass.</p>
+</div>
 </section>
 
 <section class="section" id="visualize">
-    <h1>Filter Visualization</h1>
-    <p>The <code>FilterVisualize</code> class is your primary tool for interpreting what the Convolutional filters in your model have learned. It provides multiple methods to convert the raw numerical weights of your model into human-readable sequence motifs (Position Frequency Matrices).</p>
-    
-    <h2>1. Visualization Methods</h2>
+<h1>Filter Visualization</h1>
+<p>The <code>cn.CNN1D.FilterVisualize</code> module extracts sequence motifs from model filters.</p>
 
-    <div class="method">
-        <div class="method-signature">FilterVisualize.softmax(model, background=None) → MotifSet</div>
-        <span class="badge">STATIC</span>
-        <p><strong>The "Quick & Dirty" Method.</strong> Applies a Softmax function directly to the filter weights. This gives you a theoretical idea of what the filter <em>wants</em> to see, but doesn't tell you if it actually fires on real data.</p>
-        <h4>Parameters:</h4>
-        <div class="param-list">
-             <div class="param"><span class="param-name">model</span> (keras.Model): Trained model.</div>
-             <div class="param"><span class="param-name">background</span> (dict, optional): Background frequencies (e.g. <code>{'A':0.25, ...}</code>). Default is uniform.</div>
-        </div>
-    </div>
+<h2>Discovery Methods</h2>
+<div class="method">
+<div class="method-signature">cn.CNN1D.FilterVisualize.top_activating(model, data, percentile=90.0, include_all_positive=False, n_cores=1) → MotifSet</div>
+<span class="badge">RECOMMENDED</span>
+<p>Extract motifs from sequences causing high activation.</p>
+<div class="param-list">
+    <div class="param"><span class="param-name">percentile</span> (float): Cutoff for top activations (default 90.0).</div>
+    <div class="param"><span class="param-name">include_all_positive</span> (bool): If True, uses all activations > 0 (ignores percentile).</div>
+</div>
+</div>
 
-    <div class="method">
-        <div class="method-signature">FilterVisualize.top_activating(model, x_data, percentile=90.0, include_all_positive=False, n_cores=1) → MotifSet</div>
-        <span class="badge">STATIC</span>
-        <span class="badge">RECOMMENDED</span>
-        <p><strong>The "Data-Driven" Method.</strong> Feeds your actual sequences through the model and extracts the subsequences that produce the highest activation scores. This is the most accurate representation of the biological signals your model has discovered.</p>
-        <h4>Parameters:</h4>
-        <div class="param-list">
-             <div class="param"><span class="param-name">model</span> (keras.Model): Trained model.</div>
-             <div class="param"><span class="param-name">x_data</span> (np.ndarray): Input sequences (one-hot encoded).</div>
-             <div class="param"><span class="param-name">percentile</span> (float): The percentile cutoff for "top" activations (default: 90.0). Higher means stricter/cleaner motifs.</div>
-             <div class="param"><span class="param-name">include_all_positive</span> (bool): If True, ignores <code>percentile</code> and builds motifs from <em>all</em> subsequences with activation > 0. Useful for rare motifs.</div>
-             <div class="param"><span class="param-name">n_cores</span> (int): Number of parallel cores to use.</div>
-        </div>
-    </div>
+<div class="method">
+<div class="method-signature">cn.CNN1D.FilterVisualize.significant_activating(model, data, n_perturbations=1000, q_value_cutoff=1.0, n_cores=1) → MotifSet</div>
+<span class="badge">RIGOROUS</span>
+<p>Extract motifs using permutation testing to filter significant activations.</p>
+<div class="param-list">
+    <div class="param"><span class="param-name">n_perturbations</span> (int): Number of shuffles per filter.</div>
+    <div class="param"><span class="param-name">q_value_cutoff</span> (float): FDR cutoff for subsequences.</div>
+</div>
+</div>
 
-    <div class="method">
-        <div class="method-signature">FilterVisualize.pos_activating(model, n_cores=1, background=None) → MotifSet</div>
-        <span class="badge">STATIC</span>
-        <p><strong>The "Consensus" Method.</strong> Builds a motif by looking only at the positive weights in the filter kernel. It constructs a "consensus" sequence that would theoretically maximize activation.</p>
-    </div>
+<div class="method">
+<div class="method-signature">cn.CNN1D.FilterVisualize.pos_activating(model, n_cores=1, background=None) → MotifSet</div>
+<p>Construct consensus motifs strictly from positive filter weights.</p>
+</div>
+<div class="method">
+<div class="method-signature">cn.CNN1D.FilterVisualize.softmax(model, background=None) → MotifSet</div>
+<p>Construct motifs by applying softmax to filter weights.</p>
+</div>
 
-    <div class="method">
-        <div class="method-signature">FilterVisualize.significant_activating(model, x_data, n_perturbations=100, p_value_cutoff=0.01, n_cores=1) → MotifSet</div>
-        <span class="badge">STATIC</span>
-        <span class="badge">RIGOROUS</span>
-        <p><strong>The "Statistical" Method.</strong> Performs a perturbation test to compare real filter activations against a "null" model of random noise. It only builds motifs from subsequences that are statistically significant (p < cutoff). <strong>Warning:</strong> Computationally expensive.</p>
-        <h4>Parameters:</h4>
-        <div class="param-list">
-             <div class="param"><span class="param-name">n_perturbations</span> (int): Number of random filters to generate per real filter (default: 100).</div>
-             <div class="param"><span class="param-name">p_value_cutoff</span> (float): Significance threshold (default: 0.01).</div>
-        </div>
-    </div>
+<h2>Redundancy Analysis</h2>
+<div class="method">
+<div class="method-signature">cn.CNN1D.FilterVisualize.filter_redundancy(model, plot=True, savefig=None, **kwargs) → DataFrame</div>
+<p>Calculate Pearson correlation between raw filter weights. Returns similarity matrix.</p>
+</div>
+<div class="method">
+<div class="method-signature">cn.CNN1D.FilterVisualize.filter_RC_redundancy(model, plot=True, savefig=None, **kwargs) → DataFrame</div>
+<p>Calculate Pearson correlation between filters and their Reverse Complements. Returns similarity matrix.</p>
+</div>
 
-    <h2>2. The MotifSet Object</h2>
-    <p>All visualization methods return a <code>MotifSet</code> object, which behaves like a dictionary of DataFrames but has powerful export capabilities.</p>
+<h2>The MotifSet Object</h2>
+<p>Returned by discovery methods. Behaves like a dictionary of PFMs (Pandas DataFrames) but includes rich metadata.</p>
 
-    <div class="method">
-        <div class="method-signature">motifs.to_motifs(savefig=None, figsize=None)</div>
-        <p>Plots all filters in a grid layout as Sequence Logos (Information Content bits).</p>
-    </div>
+<h3>Attributes</h3>
+<div class="param-list">
+    <div class="param"><span class="param-name">.subsequences</span> (dict): The actual DNA subsequences driving activation for each filter.</div>
+    <div class="param"><span class="param-name">.subseq_classes</span> (dict): The class labels associated with each activating subsequence.</div>
+    <div class="param"><span class="param-name">.subseq_info</span> (dict): Genomic coordinates (chr, start, end) for each subsequence.</div>
+    <div class="param"><span class="param-name">.q_values</span> / <span class="param-name">.p_values</span> (dict): Statistical significance (if using <code>significant_activating</code>).</div>
+</div>
 
-    <div class="method">
-        <div class="method-signature">motifs.to_meme(outfile)</div>
-        <p>Exports all motifs to a MEME-formatted text file. Compatible with tools like TOMTOM (for matching against JASPAR/HOCOMOCO databases) or FIMO.</p>
-    </div>
+<h3>Export Methods</h3>
+<div class="method">
+<div class="method-signature">to_motifs(savefig=None, figsize=None, **kwargs)</div>
+<p>Plot Sequence Logos (Information Content) for all filters in a grid.</p>
+</div>
+<div class="method">
+<div class="method-signature">to_meme(outfile)</div>
+<p>Export all motifs to MEME format for external tools (TOMTOM, FIMO).</p>
+</div>
+<div class="method">
+<div class="method-signature">to_svgs(outdir)</div>
+<p>Export each filter as an individual SVG file.</p>
+</div>
+<div class="method">
+<div class="method-signature">filter_redundancy(savefig=None, **kwargs)</div>
+<p>Cluster learned PFMs by similarity (Pearson correlation of PWMs).</p>
+</div>
 
-    <div class="method">
-        <div class="method-signature">motifs.to_svgs(outdir)</div>
-        <p>Saves each individual filter as a high-quality SVG vector graphic in the specified directory. Great for publications or clustering analysis.</p>
-    </div>
-
-    <h2>3. Examples</h2>
-
-    <h3>Example 1: Standard Discovery</h3>
-    <pre><code>from cnnamon.CNN1D import FilterVisualize
-
-# 1. Generate motifs from Test Set (Top 10% of activators)
-motifs = FilterVisualize.top_activating(
-    model, 
-    test['x'], 
-    percentile=90.0, 
-    n_cores=4
-)
-
-# 2. Visualize in a grid
-motifs.to_motifs(savefig="figures/all_motifs.png")
-
-# 3. Export for external tools
-motifs.to_meme("results/learned_motifs.meme")</code></pre>
-
-    <h3>Example 2: Analyzing Rare Motifs</h3>
-    <p>If you suspect a filter detects a very rare signal (e.g. only 50 instances in 10,000 sequences), a 90th percentile cutoff might be too strict. Use <code>include_all_positive=True</code> to capture every instance.</p>
-    <pre><code>rare_motifs = FilterVisualize.top_activating(
-    model, 
-    test['x'], 
-    include_all_positive=True,  # Capture ALL positive activations
-    n_cores=4
-)
-rare_motifs.to_motifs(savefig="figures/rare_motifs.png")</code></pre>
-
-    <h3>Example 3: High-Rigor Verification</h3>
-    <p>Use the statistical method to filter out noise "motifs" that are just random GC-rich patches.</p>
-    <pre><code>rigorous_motifs = FilterVisualize.significant_activating(
-    model, 
-    test['x'], 
-    n_perturbations=200, 
-    p_value_cutoff=0.01,
-    n_cores=8
-)
-# Only statistically significant patterns will appear here
-rigorous_motifs.to_motifs()</code></pre>
-
+<h2>Nucleotide Sensitivity</h2>
+<div class="method">
+<div class="method-signature">cn.CNN1D.analyze_nucleotide_sensitivity(model, motifset, n_cores=1) → DataFrame</div>
+<p>Perform in-silico mutagenesis on activating subsequences. Returns a DataFrame with 'FoldChange' for every mutation.</p>
+</div>
+<div class="method">
+<div class="method-signature">cn.CNN1D.plot_nucleotide_sensitivity(df, savefig=None)</div>
+<p>Plot mutagenesis results as boxplots per filter position, showing the impact of mutations on activation.</p>
+</div>
 </section>
+
 <section class="section" id="importance">
 <h1>Filter Importance</h1>
-<p>Identify the most important filters through perturbation analysis.</p>
-<h2>Initialization</h2>
+<p>Rank filters by their contribution to model prediction accuracy.</p>
 <div class="method">
-<div class="method-signature">FilterImportance(model, testset, n_iterations=10, method='mean', n_cores=1, batch_size=32)</div>
-<p>Runs the full perturbation experiment and ranks filters by importance.</p>
-<h4>Parameters:</h4>
+<div class="method-signature">cn.CNN1D.FilterImportance(model, testset, n_iterations=10, method='mean', n_cores=1, batch_size=32)</div>
+<p>Initialize and run perturbation experiment.</p>
 <div class="param-list">
-<div class="param">
-<span class="param-name">model</span> (keras.Model): Trained model
-                    </div>
-<div class="param">
-<span class="param-name">testset</span> (Dict): Data dict with 'x' and 'y' keys
-                    </div>
-<div class="param">
-<span class="param-name">n_iterations</span> (int): Perturbation rounds per filter
-                    </div>
-<div class="param">
-<span class="param-name">method</span> (str): 'mean' or 'median' for aggregation
-                    </div>
-<div class="param">
-<span class="param-name">batch_size</span> (int): Evaluation batch size (increase for GPU speedup)
-                    </div>
+    <div class="param"><span class="param-name">n_iterations</span> (int): Number of random perturbations per filter.</div>
+    <div class="param"><span class="param-name">method</span> (str): Aggregation method for loss ('mean' or 'median').</div>
 </div>
 </div>
-<h2>How It Works</h2>
-<ol>
-<li>Calculate baseline model loss on test data</li>
-<li>For each filter:
-                    <ul>
-<li>Perturb its weights with Gaussian noise (preserving mean/std)</li>
-<li>Evaluate model loss with perturbed filter</li>
-<li>Repeat n_iterations times</li>
-</ul>
-</li>
-<li>Rank filters by average loss increase</li>
-</ol>
-<h2>Visualization Methods</h2>
+
+<h2>Attributes</h2>
+<div class="param-list">
+    <div class="param"><span class="param-name">.filter_importance_ranking</span> (list): Filter names ordered by importance.</div>
+    <div class="param"><span class="param-name">.importance_score</span> (Series): The loss increase caused by perturbing each filter.</div>
+    <div class="param"><span class="param-name">.perturbation_results</span> (DataFrame): Raw loss values for every iteration.</div>
+</div>
+
+<h2>Methods</h2>
 <div class="method">
 <div class="method-signature">boxplot(savefig=None, **kwargs)</div>
-<p>Plot distribution of perturbed losses as boxplots, ordered by importance.</p>
+<p>Plot importance distribution (boxplots) vs Baseline Loss.</p>
 </div>
 <div class="method">
 <div class="method-signature">violin(savefig=None, **kwargs)</div>
-<p>Plot distribution of perturbed losses as violin plots, ordered by importance.</p>
+<p>Plot importance distribution (violin plots) vs Baseline Loss.</p>
 </div>
-<h2>Example</h2>
-<pre><code>from cnnamon.CNN1D import FilterImportance
-
-importance = FilterImportance(
-    model,
-    testset=test,
-    n_iterations=20,
-    method='mean',
-    n_cores=8,
-    batch_size=256
-)
-
-# Visualize results
-importance.boxplot(savefig="importance_boxplot.png")
-importance.violin(savefig="importance_violin.png")
-
-# Access ranking
-print("Most important filters:", importance.filter_importance_ranking[:5])</code></pre>
-<div class="warning">
-<strong>⚠️ Performance Note:</strong> This analysis can be slow. Increase <code>batch_size</code> (e.g., 256-512) for GPU acceleration, and use <code>n_cores</code> for CPU parallelization.
-            </div>
 </section>
+
 <section class="section" id="clustering">
 <h1>Filter Clustering</h1>
-<p>Group functionally similar filters based on their activation profiles.</p>
-<h2>Initialization</h2>
+<p>Group filters by activation profile similarity.</p>
 <div class="method">
-<div class="method-signature">FilterClustering(model, testset, target_layer=None, linkage_method='ward')</div>
-<p>Performs hierarchical clustering of filters.</p>
-<h4>Parameters:</h4>
+<div class="method-signature">cn.CNN1D.FilterClustering(model, testset, target_layer=None, linkage_method='ward')</div>
+<p>Initialize clustering analysis.</p>
 <div class="param-list">
-<div class="param">
-<span class="param-name">model</span> (keras.Model): Trained model
-                    </div>
-<div class="param">
-<span class="param-name">testset</span> (Dict): Data dict with 'x' and 'y' keys
-                    </div>
-<div class="param">
-<span class="param-name">target_layer</span> (str, optional): Conv1D layer name (uses first if None)
-                    </div>
-<div class="param">
-<span class="param-name">linkage_method</span> (str): Clustering linkage ('ward', 'average', 'complete')
-                    </div>
+    <div class="param"><span class="param-name">linkage_method</span> (str): Scipy linkage method ('ward', 'average', 'complete', etc.).</div>
 </div>
 </div>
-<h2>Visualization Methods</h2>
-<div class="method">
-<div class="method-signature">plot_heatmap(savefig=None, **kwargs)</div>
-<p>Plot clustered heatmap showing filter activation patterns.</p>
-</div>
-<div class="method">
-<div class="method-signature">plot_dendrogram(savefig=None, **kwargs)</div>
-<p>Plot hierarchical clustering dendrogram.</p>
-</div>
-<div class="method">
-<div class="method-signature">plot_circlize(savefig=None, **kwargs)</div>
-<p>Plot circular phylogenetic tree of filter relationships.</p>
-</div>
-<div class="method">
-<div class="method-signature">get_clusters(n_clusters) → Dict[str, List[str]]</div>
-<p>Extract filter groups by cutting dendrogram at specified number of clusters.</p>
-<h4>Returns:</h4>
-<p>Dictionary mapping cluster names to filter lists.</p>
-</div>
-<h2>Example</h2>
-<pre><code>from cnnamon.CNN1D import FilterClustering
 
-clustering = FilterClustering(
-    model,
-    testset=test,
-    target_layer='conv1d_0',
-    linkage_method='ward'
-)
-
-# Visualize clustering
-clustering.plot_heatmap(savefig="cluster_heatmap.png")
-clustering.plot_dendrogram(savefig="dendrogram.png")
-clustering.plot_circlize(savefig="circular_tree.png")
-
-# Get cluster assignments
-clusters = clustering.get_clusters(n_clusters=5)
-for cluster_name, filters in clusters.items():
-    print(f"{cluster_name}: {filters}")</code></pre>
-<div class="note">
-<strong>💡 Use Case:</strong> Clustering helps identify redundant filters or functionally related motif groups. Combine with FilterVisualize to see what motifs each cluster represents.
-            </div>
-</section>
-<section class="section" id="enrichment">
-<h1>Filter Enrichment</h1>
-<p>Discover which filters are enriched for specific output classes through statistical testing.</p>
-<h2>Initialization</h2>
-<div class="method">
-<div class="method-signature">FilterEnrichment(model, testset, target_layer=None, class_names=None, method='mann-whitney', n_cores=1)</div>
-<p>Performs class-specific enrichment analysis with FDR correction.</p>
-<h4>Parameters:</h4>
+<h2>Attributes</h2>
 <div class="param-list">
-<div class="param">
-<span class="param-name">model</span> (keras.Model): Trained model
-                    </div>
-<div class="param">
-<span class="param-name">testset</span> (Dict): Data dict with 'x' and 'y' keys
-                    </div>
-<div class="param">
-<span class="param-name">target_layer</span> (str, optional): Conv1D layer name
-                    </div>
-<div class="param">
-<span class="param-name">class_names</span> (List[str], optional): Custom class labels
-                    </div>
-<div class="param">
-<span class="param-name">method</span> (str): 'mann-whitney'
-                    </div>
-<div class="param">
-<span class="param-name">n_cores</span> (int): Parallel processing cores
-                    </div>
+    <div class="param"><span class="param-name">.optimal_k</span> (int): Suggested number of clusters based on silhouette score.</div>
+    <div class="param"><span class="param-name">.fingerprints</span> (DataFrame): Raw filter activation profiles.</div>
+    <div class="param"><span class="param-name">.norm_fingerprints</span> (DataFrame): Z-score normalized fingerprints.</div>
+    <div class="param"><span class="param-name">.newick_tree</span> (str): Tree structure in Newick format.</div>
 </div>
-</div>
-<h2>How It Works</h2>
-<ol>
-<li>Extract filter activations for all sequences</li>
-<li>For each filter and each class:
-                    <ul>
-<li>Split activations into class-positive and class-negative groups</li>
-<li>Calculate log2 fold change (enrichment direction)</li>
-<li>Perform statistical test (Mann-Whitney U </li>
-</ul>
-</li>
-<li>Apply FDR correction (Benjamini-Hochberg) across all tests</li>
-<li>Identify significantly enriched filter-class pairs</li>
-</ol>
+
 <h2>Methods</h2>
 <div class="method">
-<div class="method-signature">get_results(value_type='q-value', q_cutoff=1.0, logFC_cutoff=0.0) → DataFrame</div>
-<p>Extract filtered enrichment results.</p>
-<h4>Parameters:</h4>
-<div class="param-list">
-<div class="param">
-<span class="param-name">value_type</span> (str): 'q-value', 'p-value', or 'logFC'
-                    </div>
-<div class="param">
-<span class="param-name">q_cutoff</span> (float): Maximum q-value threshold
-                    </div>
-<div class="param">
-<span class="param-name">logFC_cutoff</span> (float): Minimum absolute log2 fold change
-                    </div>
-</div>
+<div class="method-signature">suggest_optimal_clusters(max_k=10, plot=True) → int</div>
+<p>Run silhouette analysis to determine optimal cluster count.</p>
 </div>
 <div class="method">
-<div class="method-signature">plot_heatmap(q_cutoff=0.05, savefig=None, **kwargs)</div>
-<p>Plot log2 fold change heatmap with significance markers (*) for q ≤ cutoff.</p>
+<div class="method-signature">plot_heatmap(savefig=None)</div>
+<p>Plot clustered heatmap of filter activations.</p>
 </div>
-<h2>Example</h2>
-<pre><code>from cnnamon.CNN1D import FilterEnrichment
+<div class="method">
+<div class="method-signature">plot_circlize(n_clusters=None, savefig=None)</div>
+<p>Plot circular dendrogram with cluster highlighting.</p>
+</div>
+<div class="method">
+<div class="method-signature">get_clusters(n_clusters=None) → DataFrame</div>
+<p>Return a DataFrame mapping <code>filter_name</code> to <code>cluster_id</code>.</p>
+</div>
+</section>
 
-enrichment = FilterEnrichment(
-    model,
-    testset=test,
-    class_names=['Enhancer', 'Promoter', 'Silencer'],
-    method='mann-whitney',
-    n_cores=4
-)
+<section class="section" id="enrichment">
+<h1>Filter Enrichment</h1>
+<p>Identify filters enriched for specific output classes.</p>
+<div class="method">
+<div class="method-signature">cn.CNN1D.FilterEnrichment(model, data, motifset=None, universe='activated', method='fold_change', n_cores=1)</div>
+<h4>Parameters:</h4>
+<div class="param-list">
+<div class="param"><span class="param-name">method</span> (str): <code>'fold_change'</code> (Mann-Whitney U) or <code>'odds_ratio'</code> (Fisher Exact).</div>
+<div class="param"><span class="param-name">motifset</span> (MotifSet): Required if <code>method='odds_ratio'</code>.</div>
+<div class="param"><span class="param-name">universe</span> (str): Background for Fisher test. <code>'activated'</code> (only activating sequences) or <code>'global'</code> (all sequences).</div>
+</div>
+</div>
 
-# Visualize enrichment
-enrichment.plot_heatmap(
-    q_cutoff=0.05,
-    savefig="enrichment_heatmap.png"
-)
+<h2>Attributes</h2>
+<div class="param-list">
+    <div class="param"><span class="param-name">.df</span> (DataFrame): Main results table. Contains Log Fold Changes or Odds Ratios.</div>
+    <div class="param"><span class="param-name">.pvals</span> (DataFrame): Raw P-values.</div>
+    <div class="param"><span class="param-name">.qvals</span> (DataFrame): FDR-corrected Q-values.</div>
+</div>
 
-# Get significant results
-significant = enrichment.get_results(
-    value_type='logFC',
-    q_cutoff=0.05,
-    logFC_cutoff=1.0
-)
-print(significant)
-
-# Access raw data
-q_values = enrichment.q_values  # DataFrame: filters × classes
-logFCs = enrichment.logFCs      # DataFrame: filters × classes</code></pre>
-<div class="note">
-<strong>💡 Interpretation:</strong>
-<ul>
-<li>Positive logFC: Filter activates more strongly for sequences in that class</li>
-<li>Negative logFC: Filter activates less for sequences in that class</li>
-<li>* marker: q-value ≤ significance threshold (statistically significant)</li>
-</ul>
+<h2>Methods</h2>
+<div class="method">
+<div class="method-signature">plot_heatmap(q_cutoff=0.05, savefig=None, **kwargs)</div>
+<p>Plot enrichment heatmap. Filters with <code>q-value ≤ q_cutoff</code> are marked with (*).</p>
 </div>
 </section>
 </main>
@@ -1027,7 +668,6 @@ logFCs = enrichment.logFCs      # DataFrame: filters × classes</code></pre>
     window.location.hash = sectionId;
     window.scrollTo(0,0);
 }
-
 window.addEventListener('DOMContentLoaded', () => {
     const hash = window.location.hash.replace('#','') || 'overview';
     showSection(hash);
