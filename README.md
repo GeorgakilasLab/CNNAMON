@@ -83,6 +83,7 @@
 
 <h3>(Recommended)</h3>
 <pre><code>
+
 # 1. Create environment
 conda create -n cnnamon_env python=3.10
 conda activate cnnamon_env
