@@ -5,7 +5,6 @@
 <h1>CNNAMON: Convolutional Neural Network Analysis & Motif Discovery</h1>
 
 <p><strong>A modular, interpretability-first framework for deep learning in genomics.</strong></p>
-
 <p>
   <a href="https://badge.fury.io/py/cnnamon">
     <img src="https://badge.fury.io/py/cnnamon.svg" alt="PyPI version" />
