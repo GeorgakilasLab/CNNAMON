@@ -8,8 +8,8 @@
 **A modular, interpretability-first framework for deep learning in genomics.**
 
 <p>
-  <a href="https://badge.fury.io/py/cnnamon">
-    <img src="https://badge.fury.io/py/cnnamon.svg" alt="PyPI version" />
+  <a href="https://pypi.org/project/cnnamon/">
+    <img src="https://img.shields.io/pypi/v/cnnamon" alt="PyPI version" />
   </a>
   <a href="https://www.python.org/downloads/release/python-3100/">
     <img src="https://img.shields.io/badge/python-3.10-blue.svg" alt="Python 3.10" />
