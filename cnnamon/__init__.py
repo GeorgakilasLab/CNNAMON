@@ -11,4 +11,4 @@ from . import CNN1D
 from . import utility
 
 __all__ = ["CNN1D", "utility"]
-__version__ = "0.1.0"
+__version__ = "0.2.1"
